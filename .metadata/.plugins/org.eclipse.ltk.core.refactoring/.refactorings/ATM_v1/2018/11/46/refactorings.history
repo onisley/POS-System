@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;ATM.java&apos; to &apos;ATM/src/ATMwithTransfer&apos;&#x0D;&#x0A;- Original project: &apos;ATM_v1&apos;&#x0D;&#x0A;- Destination element: &apos;ATM/src/ATMwithTransfer&apos;&#x0D;&#x0A;- Original element: &apos;ATM_template.ATM.java&apos;" description="Copy compilation unit" destination="=ATM/src&lt;ATMwithTransfer" element1="/src&lt;ATM_template{ATM.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1542246405923" units="1" version="1.0"/>
+</session>

@@ -1,0 +1,236 @@
+package pos.presentationLayer;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+
+import pos.domainlayer.*;
+
+public class ProcessSaleJFrame extends JFrame {
+	
+	private static final String TAG = "Status: ";
+	private static final int MAKE_NEW_SALE = 1;
+	private static final int ENTER_ITEM = 2;
+	private static final int END_SALE = 3;
+	private static final int MAKE_PAYMENT = 4;
+	
+	Register mRegister;
+	Sale sale;
+	
+	private JButton btnNewSale;
+	private JButton btnEnterItem;
+	private JButton btnEndSale;
+	private JButton btnMakePayment;
+	
+	private JTextField txtItemID;
+	private JTextField txtQuantity;
+	private JTextField txtAmount;
+	private JTextField txtBalance;
+	private JTextField txtTotal;
+	
+	public ProcessSaleJFrame(Register register) {
+		
+		super("POS System (학번: 20161050\t이름: 권소영)"); // better than setTitle()
+		
+		mRegister = register;
+		
+		buildGUI(); // Build Components
+		registerEventHandler(); // add EventHandler
+		
+		this.pack(); // 화면을 구성할 수 있는 적당한 크기로 packing
+		this.setVisible(true);
+		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+	} // end ProcessSaleJFrame(Register register)
+	
+	private void buildGUI() {
+		
+		// *Student Info
+		JLabel info = new JLabel("학번: 20161050 / 이름: 권소영");
+		
+		// *1. Make New Sale()
+		btnNewSale = new JButton("1. Make New Sale()");
+		
+		// *2. Enter Item(반복)
+		JPanel panItemID = new JPanel();
+		JLabel lblItemID = new JLabel("Item ID:");
+		txtItemID = new JTextField(10);
+		panItemID.add(lblItemID);
+		panItemID.add(txtItemID);
+		
+		JPanel panQuantity = new JPanel();
+		JLabel lblQuantity = new JLabel("Quantity:");
+		txtQuantity = new JTextField(10);
+		panQuantity.add(lblQuantity);
+		panQuantity.add(txtQuantity);
+		
+		btnEnterItem = new JButton("2. Enter Item(반복)");
+		
+		// *3. End Sale()
+		btnEndSale = new JButton("3. End Sale()");
+		
+		JPanel panTotal = new JPanel();
+		JLabel lblTotal = new JLabel("Total");
+		txtTotal = new JTextField(10);
+		panTotal.add(lblTotal);
+		panTotal.add(txtTotal);
+		
+		JPanel panAmount = new JPanel();
+		JLabel lblAmount = new JLabel("Amount");
+		txtAmount = new JTextField(10);
+		panAmount.add(lblAmount);
+		panAmount.add(txtAmount);
+		
+		// *4. Make Payment()
+		btnMakePayment = new JButton("4. Make Payment()");
+		
+		JPanel panBalance = new JPanel();
+		JLabel lblBalance = new JLabel("Balance");
+		txtBalance = new JTextField(10);
+		panBalance.add(lblBalance);
+		panBalance.add(txtBalance);
+		
+		
+		// *setEnabled = false
+		txtTotal.setEditable(false);
+		txtBalance.setEditable(false);
+		setMenuStatus(MAKE_NEW_SALE, true);
+		setMenuStatus(ENTER_ITEM, false);
+		setMenuStatus(END_SALE, false);
+		setMenuStatus(MAKE_PAYMENT, false);
+		
+		// *get ContentPane
+		Container cp = this.getContentPane();
+		cp.setLayout(new GridLayout(0, 1));
+		
+		// *add Components to ContentPane
+		cp.add(info);
+		cp.add(btnNewSale);
+		cp.add(panItemID);
+		cp.add(panQuantity);
+		cp.add(btnEnterItem);
+		cp.add(btnEndSale);
+		cp.add(panTotal);
+		cp.add(panAmount);
+		cp.add(btnMakePayment);
+		cp.add(panBalance);
+		
+	} // end buildGUI()
+	
+	private void registerEventHandler() {
+		// 1. Make New Sale()
+		btnNewSale.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				sale = mRegister.makeNewSale();
+				
+				// clear txtField
+				txtTotal.setText("");
+				txtAmount.setText("");
+				txtBalance.setText("");
+				
+				setMenuStatus(MAKE_NEW_SALE, false);
+				setMenuStatus(ENTER_ITEM, true);
+				setMenuStatus(END_SALE, true);
+				
+				System.out.println(TAG + "btnNewSale Performed");
+			}
+			
+		});
+		
+		// 2. Enter Item(반복)
+		btnEnterItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					ItemID id = new ItemID(txtItemID.getText());
+					int quantity = Integer.parseInt(txtQuantity.getText());
+					
+					mRegister.enterItem(id, quantity);
+				} catch (NumberFormatException e) {
+					JOptionPane.showMessageDialog(null,
+							"수량 란에는 숫자만 입력 가능", "enterItem() 오류", JOptionPane.ERROR_MESSAGE);
+				}
+				
+				txtItemID.setText("");
+				txtQuantity.setText("");
+				
+				System.out.println(TAG + "btnEnterItem Performed");
+			}
+		});
+		
+		// 3. End Sale()
+		btnEndSale.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				endSale();
+				
+				setMenuStatus(ENTER_ITEM, false);
+				setMenuStatus(END_SALE, false);
+				setMenuStatus(MAKE_PAYMENT, true);
+				
+				System.out.println(TAG + "btnEndSale Performed");
+			}
+		});
+		
+		// 4. Make Payment()
+		btnMakePayment.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				makePayment();
+				
+				setMenuStatus(MAKE_PAYMENT, false);
+				setMenuStatus(MAKE_NEW_SALE, true);
+				
+				System.out.println(TAG + "btnMakePayment Performed");
+			}
+		});
+		
+	} //end registerEventHandler();
+	
+	private void endSale() {
+		// display total amount
+		txtTotal.setText(sale.getTotal().toString());
+		
+		// end sale
+		mRegister.endSale();
+	}
+	
+	private void makePayment() {
+		// make payment
+		int amount = Integer.parseInt(txtAmount.getText());
+		sale.makePayment(new Money(amount));
+		
+		// get balance
+		txtBalance.setText(sale.getBalance().toString());
+	}
+	
+	private void setMenuStatus(int index, boolean set) {
+		
+		switch (index) {
+		case MAKE_NEW_SALE:
+			btnNewSale.setEnabled(set);
+			break;
+		case ENTER_ITEM:
+			txtItemID.setEnabled(set);
+			txtQuantity.setEnabled(set);
+			btnEnterItem.setEnabled(set);
+			break;
+		case END_SALE:
+			btnEndSale.setEnabled(set);
+			break;
+		case MAKE_PAYMENT:
+			txtAmount.setEnabled(set);
+			btnMakePayment.setEnabled(set);
+		}
+		
+	} // end setEnabledMenu()
+	
+}
