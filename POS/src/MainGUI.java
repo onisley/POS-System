@@ -3,10 +3,15 @@ import pos.presentationLayer.*;
 
 public class MainGUI {
 	public static void main(String[] args){
-		Store store = new Store();
-		Register register = store.getRegister();
-		
-		new ProcessSaleJFrame(register);
+		if (args.length ==1)
+	    {
+			String dbFileName = args[0];
+			
+			Store store = new Store(dbFileName);
+			Register register = store.getRegister();
+			new ProcessSaleJFrame(register);
+	    } else {
+	    	System.out.println("Please run with dbFileName");
+	    }
 	}
-
 }

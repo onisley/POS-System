@@ -1,0 +1,24 @@
+package pos.domainlayer;
+
+import java.util.ArrayList;
+
+public class Store {
+	private ProductCatalog catalog;
+	private Register register;
+	private ArrayList<Sale> CompleteSale;
+	
+	public Store() {
+		catalog = new ProductCatalog();
+		register = new Register(catalog);
+		CompleteSale = new ArrayList<Sale>();
+	}
+	
+	public Store(String dbFileName) {
+		catalog = new ProductCatalog();
+		register = new Register(catalog);
+		CompleteSale = new ArrayList<Sale>();
+	}
+	
+	
+	public Register getRegister() { return register; }
+}

@@ -1,0 +1,16 @@
+package pos.domainlayer;
+
+import java.util.ArrayList;
+
+public class Store {
+	private ProductCatalog catalog = new ProductCatalog();
+	private Register register = new Register(catalog);
+	private ArrayList<Sale> CompleteSale = new ArrayList<Sale>();
+	
+	public Store() {
+		
+	}
+	
+	
+	public Register getRegister() { return register; }
+}

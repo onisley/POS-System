@@ -1,0 +1,81 @@
+package pos.domainlayer;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ProductCatalog { // 다수의 descriptions들을 유지하는 클래스
+	
+	// import 구문을 통해 Map과 HashMap 클래스 포함
+	// 여기서 HashMap으로 선언하지 않은 이유 -> 확장성, 유연성 확보를 위함
+	// 해쉬맵을 유지하기 위해 해쉬맵으로만 선언하면, 해쉬맵과 그의 자손만 다룰 수 있음
+	// 자료구조의 형태가 바뀔 경우를 고려해 부모 타입으로 선언한 것
+	private Map<String, ProductDescription> descriptions = new HashMap<String, ProductDescription>(); // ItemID -> String 형태로 받음
+	private Connection myConnection;
+	private Statement myStatement;
+	private ResultSet myResultSet;
+	
+	public ProductCatalog(){
+		//견본데이터
+		ItemID id1 = new ItemID(100); // 좀더 일반화된 형식으로 저자아기 위해 ItemID도 클래스 형태로 작성
+		Money price1 = new Money(1000);
+		
+		ItemID id2 = new ItemID(200);
+		Money price2 = new Money(2000);
+		
+		ProductDescription desc;
+		
+		desc =  new ProductDescription( id1, price1, "펩시");
+		descriptions.put(id1.toString(), desc);
+		
+		desc =  new ProductDescription( id2, price2, "product 2");
+		descriptions.put(id2.toString(), desc);
+	}
+	
+	// *권소영: ucanaccess database를 사용하기 위한 생성자
+	public ProductCatalog(String dbFileName) {
+		try {
+			myConnection = DriverManager.getConnection("jdbc:ucanaccess://" + dbFileName);
+			   
+			myStatement = myConnection.createStatement();
+		} catch(SQLException exception) {
+			// *권소영: DB접근에 실패할 경우
+			exception.printStackTrace();
+		}
+		
+		addProductInDatabase();
+	}
+	
+	private void addProductInDatabase() {
+		try {
+			myResultSet = myStatement.executeQuery(
+					"SELECT * FROM ProductDescriptions" );
+			   
+			ProductDescription desc;
+			
+			// add ProductDescription to HashMap
+			while ( myResultSet.next() ) {
+				String id1 = 
+				desc =  new ProductDescription( id1, price1, "펩시");
+				descriptions.put(id1.toString(), desc);
+			}
+			   
+			myResultSet.close(); // close myResultSet
+			   
+		} // end try
+		   
+		   catch (SQLException exception )
+		   {
+			   exception.printStackTrace();
+		   }
+	}
+	
+	public ProductDescription getProductDescription(ItemID id){
+		return descriptions.get(id.toString());
+	}
+
+}

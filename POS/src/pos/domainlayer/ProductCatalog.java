@@ -1,7 +1,13 @@
 package pos.domainlayer;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ProductCatalog { // 다수의 descriptions들을 유지하는 클래스
 	
@@ -10,6 +16,9 @@ public class ProductCatalog { // 다수의 descriptions들을 유지하는 클래스
 	// 해쉬맵을 유지하기 위해 해쉬맵으로만 선언하면, 해쉬맵과 그의 자손만 다룰 수 있음
 	// 자료구조의 형태가 바뀔 경우를 고려해 부모 타입으로 선언한 것
 	private Map<String, ProductDescription> descriptions = new HashMap<String, ProductDescription>(); // ItemID -> String 형태로 받음
+	private Connection myConnection;
+	private Statement myStatement;
+	private ResultSet myResultSet;
 	
 	public ProductCatalog(){
 		//견본데이터
@@ -28,9 +37,54 @@ public class ProductCatalog { // 다수의 descriptions들을 유지하는 클래스
 		descriptions.put(id2.toString(), desc);
 	}
 	
-	public ProductDescription getProductDescription(ItemID id){
-		
-		return descriptions.get(id.toString());
+	// *권소영: ucanaccess database를 사용하기 위한 생성자
+	public ProductCatalog(String dbFileName) {
+		try {
+			myConnection = DriverManager.getConnection("jdbc:ucanaccess://" + dbFileName);
+			   
+			myStatement = myConnection.createStatement();
+		} catch(SQLException exception) {
+			// *권소영: DB접근에 실패할 경우
+			exception.printStackTrace();
 		}
+		
+		addProductInDatabase();
+	}
+	
+	private void addProductInDatabase() {
+		try {
+			myResultSet = myStatement.executeQuery(
+					"SELECT * FROM ProductDescriptions" );
+			   
+			ProductDescription desc;
+			
+			// add ProductDescription to HashMap
+			while ( myResultSet.next() ) {
+				ItemID id = new ItemID(myResultSet.getString("itemID"));
+				Money price = new Money(myResultSet.getInt("price"));
+				String description = myResultSet.getString("description");
+				
+				// test code
+				// System.out.println(myResultSet.getString("itemID"));
+				
+				desc =  new ProductDescription(id, price, description);
+				descriptions.put(id.toString(), desc);
+			}
+			
+			myResultSet.close(); // close myResultSet
+			   
+		} catch (SQLException exception ) {
+			exception.printStackTrace();
+		}
+	}
+	
+	public ProductDescription getProductDescription(ItemID id){
+		return descriptions.get(id.toString());
+	}
+	
+	protected Set<String> getItemList() {
+		Set<String> itemList = descriptions.keySet();
+		return itemList;
+	}
 
 }

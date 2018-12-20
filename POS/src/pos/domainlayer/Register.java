@@ -1,5 +1,8 @@
 package pos.domainlayer;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 public class Register {
 	
 	private ProductCatalog catalog;
@@ -30,5 +33,10 @@ public class Register {
 	public void makePayment(Money cashTendered)
 	{
 		currentSale.makePayment(cashTendered);
+	}
+	
+	public Set<String> getCatalog()
+	{
+		return catalog.getItemList();
 	}
 }
